@@ -5,24 +5,47 @@ import { getIndexFilePathInCafs } from '@pnpm/store.cafs'
 import { type PackageMeta } from '@pnpm/npm-resolver'
 import getRegistryName from 'encode-registry'
 
-interface CachedVersions {
-  cachedVersions: string[]
-  nonCachedVersions: string[]
-  cachedAt?: string
-  distTags: Record<string, string>
-}
+/**
+ * @typedef {Object} CachedVersions
+ * @property {string[]} cachedVersions - Versions that are cached.
+ * @property {string[]} nonCachedVersions - Versions that are not cached.
+ * @property {string} [cachedAt] - Date string when the metadata was cached.
+ * @property {Record<string, string>} distTags - Distribution tags for the package.
+ */
 
-export async function cacheView (opts: { cacheDir: string, storeDir: string, registry?: string }, packageName: string): Promise<string> {
+/**
+ * @typedef {Object} PackageMeta
+ * @property {Record<string, {
+ *   dist: { integrity?: string },
+ *   name: string,
+ *   version: string
+ * }>} versions
+ * @property {string} [cachedAt]
+ * @property {Record<string, string>} ['dist-tags']
+ */
+
+/**
+ * @param {{ cacheDir: string, storeDir: string, registry?: string }} opts
+ * @param {string} packageName
+ * @returns {Promise<string>}
+ */
+export async function cacheView(opts, packageName) {
   const prefix = opts.registry ? `${getRegistryName(opts.registry)}` : '*'
   const metaFilePaths = (await glob(`${prefix}/${packageName}.json`, {
     cwd: opts.cacheDir,
     expandDirectories: false,
   })).sort()
-  const metaFilesByPath: Record<string, CachedVersions> = {}
+
+  /** @type {Record<string, CachedVersions>} */
+  const metaFilesByPath = {}
+
   for (const filePath of metaFilePaths) {
-    const metaObject = JSON.parse(fs.readFileSync(path.join(opts.cacheDir, filePath), 'utf8')) as PackageMeta
-    const cachedVersions: string[] = []
-    const nonCachedVersions: string[] = []
+    /** @type {PackageMeta} */
+    const metaObject = JSON.parse(fs.readFileSync(path.join(opts.cacheDir, filePath), 'utf8'))
+
+    const cachedVersions = []
+    const nonCachedVersions = []
+
     for (const [version, manifest] of Object.entries(metaObject.versions)) {
       if (!manifest.dist.integrity) continue
       const indexFilePath = getIndexFilePathInCafs(opts.storeDir, manifest.dist.integrity, `${manifest.name}@${manifest.version}`)
@@ -32,10 +55,12 @@ export async function cacheView (opts: { cacheDir: string, storeDir: string, reg
         nonCachedVersions.push(version)
       }
     }
+
     let registryName = filePath
     while (path.dirname(registryName) !== '.') {
       registryName = path.dirname(registryName)
     }
+
     metaFilesByPath[registryName.replaceAll('+', ':')] = {
       cachedVersions,
       nonCachedVersions,
@@ -43,5 +68,6 @@ export async function cacheView (opts: { cacheDir: string, storeDir: string, reg
       distTags: metaObject['dist-tags'],
     }
   }
+
   return JSON.stringify(metaFilesByPath, null, 2)
 }
