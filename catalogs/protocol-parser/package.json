@@ -20,8 +20,8 @@
     "!*.map"
   ],
   "scripts": {
-    "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
-    "compile": "tsc --build && pnpm run lint --fix",
+    "lint": "eslint \"src/**/*.js\" \"test/**/*.js\"",
+    "compile": "pnpm run lint --fix",
     "prepublishOnly": "pnpm run compile",
     "test": "pnpm run compile && pnpm run _test",
     "_test": "jest"
