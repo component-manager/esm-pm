@@ -3,11 +3,10 @@
   "composite": true,
   "compilerOptions": {
     "checkJS": true,
-    "outDir": "lib",
-    "rootDir": "src"
   },
   "include": [
-    "src/**/*.js",
+    "lib/**/*.js",
+    "test/**/*.js",
     "../../__typings__/**/*.d.ts"
   ],
   "references": []
