@@ -15,10 +15,6 @@
     "url": "https://github.com/pnpm/pnpm/issues"
   },
   "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "exports": {
-    ".": "./lib/index.js"
-  },
   "files": [
     "lib",
     "!*.map"
