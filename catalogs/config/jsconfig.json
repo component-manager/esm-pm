@@ -2,11 +2,11 @@
   "extends": "@pnpm/tsconfig",
   "composite": true,
   "compilerOptions": {
-    "outDir": "lib",
-    "rootDir": "src"
+    "checkJs": true
   },
   "include": [
-    "src/**/*.ts",
+    "lib/**/*.js",
+    "test/**/*.js",
     "../../__typings__/**/*.d.ts"
   ],
   "references": [
