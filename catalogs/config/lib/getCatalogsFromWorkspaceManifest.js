@@ -1,13 +1,29 @@
 import { PnpmError } from '@pnpm/error'
 
 /**
- * @typedef {Object<string, unknown>} Catalogs
- * A map of catalog names to catalog configurations (structure depends on PNPM implementation).
+ * A catalog of dependency versions.
+ * 
+ * Each key is a dependency name, and the value is a string version or `undefined`.
+ *
+ * @typedef {Object<string, (string | undefined)>} Catalog
  */
 
 /**
+ * Catalogs parsed from the pnpm-workspace.yaml file.
+ * 
+ * - The default catalog can be specified in one of two ways:
+ *   1. Using the top-level `catalog` field.
+ *   2. By defining an explicitly named `'default'` catalog under the `catalogs` map.
+ *
+ * It's an error to define both; the manifest parser will throw in that case.
+ *
+ * @typedef {Object<string, (Catalog | undefined)> & { default?: Catalog }} Catalogs
+ */
+
+
+/**
  * @typedef {Object} WorkspaceManifest
- * @property {unknown} [catalog] - The default catalog definition.
+ * @property {Catalog} [catalog] - The default catalog definition.
  * @property {Catalogs} [catalogs] - A map of named catalogs.
  */
 
